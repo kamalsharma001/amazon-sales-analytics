@@ -25,11 +25,11 @@ def dashboard_summary(df: pd.DataFrame) -> dict:
     aov = total_revenue / total_orders if total_orders else 0
 
     top_category = (
-        df.groupby("Category")["Revenue"].sum().sort_values(ascending=False).index[0]
+        df.groupby("Category", observed=True)["Revenue"].sum().sort_values(ascending=False).index[0]
         if not df.empty else None
     )
     top_state = (
-        df.groupby("ship-state")["Revenue"].sum().sort_values(ascending=False).index[0]
+        df.groupby("ship-state", observed=True)["Revenue"].sum().sort_values(ascending=False).index[0]
         if "ship-state" in df.columns and df["ship-state"].notna().any() else None
     )
 
@@ -54,7 +54,7 @@ def sales_trend(df: pd.DataFrame) -> dict:
     daily["date"] = daily["date"].astype(str)
 
     monthly = (
-        df.groupby(["Year", "MonthNum", "Month"])
+        df.groupby(["Year", "MonthNum", "Month"], observed=True)
         .agg(revenue=("Revenue", "sum"), orders=("Order ID", "nunique"))
         .reset_index()
         .sort_values(["Year", "MonthNum"])
@@ -62,7 +62,7 @@ def sales_trend(df: pd.DataFrame) -> dict:
     monthly["label"] = monthly["Month"].str[:3] + " " + monthly["Year"].astype(str)
 
     weekday = (
-        df.groupby("Weekday")
+        df.groupby("Weekday", observed=True)
         .agg(revenue=("Revenue", "sum"), orders=("Order ID", "nunique"))
         .reindex(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
         .reset_index()
@@ -77,7 +77,7 @@ def sales_trend(df: pd.DataFrame) -> dict:
 
 def category_analysis(df: pd.DataFrame) -> list:
     g = (
-        df.groupby("Category")
+        df.groupby("Category", observed=True)
         .agg(revenue=("Revenue", "sum"), orders=("Order ID", "nunique"), quantity=("Qty", "sum"))
         .reset_index()
     )
@@ -91,7 +91,7 @@ def category_analysis(df: pd.DataFrame) -> list:
 
 def size_analysis(df: pd.DataFrame) -> list:
     g = (
-        df.groupby("Size")
+        df.groupby("Size", observed=True)
         .agg(revenue=("Revenue", "sum"), orders=("Order ID", "nunique"), quantity=("Qty", "sum"))
         .reset_index()
         .sort_values("revenue", ascending=False)
@@ -102,7 +102,7 @@ def size_analysis(df: pd.DataFrame) -> list:
 def state_analysis(df: pd.DataFrame) -> list:
     g = (
         df.dropna(subset=["ship-state"])
-        .groupby("ship-state")
+        .groupby("ship-state", observed=True)
         .agg(revenue=("Revenue", "sum"), orders=("Order ID", "nunique"), quantity=("Qty", "sum"))
         .reset_index()
         .rename(columns={"ship-state": "state"})
@@ -114,7 +114,7 @@ def state_analysis(df: pd.DataFrame) -> list:
 def city_analysis(df: pd.DataFrame, limit: int = 30) -> list:
     g = (
         df.dropna(subset=["ship-city"])
-        .groupby("ship-city")
+        .groupby("ship-city", observed=True)
         .agg(revenue=("Revenue", "sum"), orders=("Order ID", "nunique"), quantity=("Qty", "sum"))
         .reset_index()
         .rename(columns={"ship-city": "city"})
@@ -126,7 +126,7 @@ def city_analysis(df: pd.DataFrame, limit: int = 30) -> list:
 
 def fulfillment_analysis(df: pd.DataFrame) -> list:
     out = []
-    for method, sub in df.groupby("Fulfilment"):
+    for method, sub in df.groupby("Fulfilment", observed=True):
         orders = sub["Order ID"].nunique()
         cancelled = sub["IsCancelled"].sum()
         out.append({
@@ -144,7 +144,7 @@ def customer_analysis(df: pd.DataFrame) -> dict:
     total_revenue = df["Revenue"].sum()
     total_orders = df["Order ID"].nunique()
     rows = []
-    for ctype, sub in df.groupby("CustomerType"):
+    for ctype, sub in df.groupby("CustomerType", observed=True):
         orders = sub["Order ID"].nunique()
         rev = sub["Revenue"].sum()
         rows.append({
@@ -160,7 +160,7 @@ def customer_analysis(df: pd.DataFrame) -> dict:
 
 def top_products(df: pd.DataFrame, limit: int = 20) -> list:
     g = (
-        df.groupby(["Category", "Size"])
+        df.groupby(["Category", "Size"], observed=True)
         .agg(revenue=("Revenue", "sum"), orders=("Order ID", "nunique"), quantity=("Qty", "sum"))
         .reset_index()
         .sort_values("revenue", ascending=False)
@@ -176,11 +176,11 @@ def cancellation_analysis(df: pd.DataFrame) -> dict:
     rate = len(cancelled) / total * 100 if total else 0
 
     by_category = (
-        cancelled.groupby("Category").size().sort_values(ascending=False)
+        cancelled.groupby("Category", observed=True).size().sort_values(ascending=False)
         .rename("count").reset_index()
     )
     by_state = (
-        cancelled.dropna(subset=["ship-state"]).groupby("ship-state").size()
+        cancelled.dropna(subset=["ship-state"]).groupby("ship-state", observed=True).size()
         .sort_values(ascending=False).rename("count").reset_index()
         .rename(columns={"ship-state": "state"}).head(10)
     )
