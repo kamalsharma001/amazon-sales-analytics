@@ -166,7 +166,7 @@ def top_products(df: pd.DataFrame, limit: int = 20) -> list:
         .sort_values("revenue", ascending=False)
         .head(limit)
     )
-    g["product"] = g["Category"] + " - " + g["Size"]
+    g["product"] = g["Category"].astype(str) + " - " + g["Size"].astype(str)
     return g[["product", "Category", "Size", "revenue", "orders", "quantity"]].round(2).to_dict(orient="records")
 
 
