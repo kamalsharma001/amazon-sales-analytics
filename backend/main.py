@@ -15,8 +15,12 @@ from routes import customers, export, geography, overview, products
 
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173"
+    "*"
 ).split(",")
+
+allow_credentials = True
+if "*" in ALLOWED_ORIGINS or "" in ALLOWED_ORIGINS:
+    allow_credentials = False
 
 app = FastAPI(
     title="Amazon Sales Analytics API",
@@ -27,7 +31,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
