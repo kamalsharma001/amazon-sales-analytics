@@ -13,10 +13,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routes import customers, export, geography, overview, products
 
-ALLOWED_ORIGINS = os.getenv(
-    "ALLOWED_ORIGINS",
-    "*"
-).split(",")
+ALLOWED_ORIGINS = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("ALLOWED_ORIGINS", "*").split(",")
+]
 
 allow_credentials = True
 if "*" in ALLOWED_ORIGINS or "" in ALLOWED_ORIGINS:

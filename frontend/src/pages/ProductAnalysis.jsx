@@ -38,12 +38,14 @@ function TreemapCell({ x, y, width, height, index, name, value }) {
 }
 
 export default function ProductAnalysis() {
-  const { data: cat, loading: catLoading, error } = useFetch(api.categoryAnalysis, []);
-  const { data: sizes, loading: sizeLoading } = useFetch(api.sizeAnalysis, []);
-  const { data: products, loading: prodLoading } = useFetch(() => api.topProducts(20), []);
+  const { data: cat, loading: catLoading, error: catError } = useFetch(api.categoryAnalysis, []);
+  const { data: sizes, loading: sizeLoading, error: sizeError } = useFetch(api.sizeAnalysis, []);
+  const { data: products, loading: prodLoading, error: prodError } = useFetch(() => api.topProducts(20), []);
+
+  const activeError = catError || sizeError || prodError;
 
   if (catLoading) return <PageLoader message="Analyzing product performance..." />;
-  if (error) return <ErrorState message={error} />;
+  if (activeError) return <ErrorState message={activeError} />;
 
   return (
     <div className="space-y-6">
@@ -116,7 +118,7 @@ export default function ProductAnalysis() {
                 </tr>
               </thead>
               <tbody>
-                {products.products.map((p, i) => (
+                {products?.products && products.products.map((p, i) => (
                   <tr key={p.product} className="border-t border-paper-200 dark:border-ink-700">
                     <td className="py-2 px-1 text-ink-600 dark:text-paper-200/40">{i + 1}</td>
                     <td className="py-2 px-1 font-medium">{p.product}</td>
