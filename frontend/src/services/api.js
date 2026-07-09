@@ -55,8 +55,9 @@ export const api = {
     const allForecast = MOCK_DATA.forecast.forecast;
     const filteredForecast = allForecast.slice(0, days);
     return {
-      metrics: MOCK_DATA.forecast.metrics,
-      forecast: filteredForecast
+      history: MOCK_DATA.forecast.history,
+      forecast: filteredForecast,
+      note: MOCK_DATA.forecast.note
     };
   },
   exportCsvUrl: () => {

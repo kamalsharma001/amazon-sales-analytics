@@ -25,17 +25,17 @@ export default function Forecast() {
   if (error) return <ErrorState message={error} />;
 
   const combined = [
-    ...data.history.map((h) => ({ date: h.date, actual: h.revenue })),
-    ...data.forecast.map((f) => ({
+    ...(data?.history?.map((h) => ({ date: h.date, actual: h.revenue })) || []),
+    ...(data?.forecast?.map((f) => ({
       date: f.date,
       predicted: f.predictedRevenue,
       lowerBound: f.lowerBound,
       band: f.upperBound - f.lowerBound,
-    })),
+    })) || []),
   ];
 
-  const totalPredictedRevenue = data.forecast.reduce((sum, f) => sum + f.predictedRevenue, 0);
-  const totalPredictedOrders = data.forecast.reduce((sum, f) => sum + f.predictedOrders, 0);
+  const totalPredictedRevenue = data?.forecast?.reduce((sum, f) => sum + f.predictedRevenue, 0) || 0;
+  const totalPredictedOrders = data?.forecast?.reduce((sum, f) => sum + f.predictedOrders, 0) || 0;
 
   return (
     <div className="space-y-6">
