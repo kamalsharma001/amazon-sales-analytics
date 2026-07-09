@@ -31,7 +31,7 @@ export const api = {
   },
   fulfillmentAnalysis: async () => {
     await delay(300);
-    return MOCK_DATA.fulfillmentAnalysis;
+    return { methods: MOCK_DATA.fulfillmentAnalysis.fulfillment };
   },
   customerAnalysis: async () => {
     await delay(300);
